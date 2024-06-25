@@ -6,6 +6,8 @@ import com.hhplus.lecture.business.entity.User;
 import com.hhplus.lecture.business.repository.LectureHistoryRepository;
 import com.hhplus.lecture.business.repository.LectureRepository;
 import com.hhplus.lecture.business.repository.UserRepository;
+import com.hhplus.lecture.exception.LectureNotFoundException;
+import com.hhplus.lecture.exception.UserNotFoundException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,7 +17,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.NoSuchElementException;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -45,7 +46,7 @@ public class LectureApplyServiceImplIntegrationTest {
         Long lectureId = lecture.getId();
 
         // When & Then
-        assertThrows(NoSuchElementException.class, () -> {
+        assertThrows(UserNotFoundException.class, () -> {
             lectureApplyServiceImpl.applyLecture(userId, lectureId);
         });
 
@@ -62,7 +63,7 @@ public class LectureApplyServiceImplIntegrationTest {
         Long lectureId = 999L; // 존재하지 않는 강의 ID
 
         // When & Then
-        assertThrows(NoSuchElementException.class, () -> {
+        assertThrows(LectureNotFoundException.class, () -> {
             lectureApplyServiceImpl.applyLecture(userId, lectureId);
         });
 
@@ -183,7 +184,7 @@ public class LectureApplyServiceImplIntegrationTest {
         Long lectureId = lecture.getId();
 
         // When & Then
-        assertThrows(NoSuchElementException.class, () -> {
+        assertThrows(UserNotFoundException.class, () -> {
             lectureApplyServiceImpl.checkApplyStatus(userId, lectureId);
         });
 
@@ -200,7 +201,7 @@ public class LectureApplyServiceImplIntegrationTest {
         Long lectureId = 999L; // 존재하지 않는 강의 ID
 
         // When & Then
-        assertThrows(NoSuchElementException.class, () -> {
+        assertThrows(LectureNotFoundException.class, () -> {
             lectureApplyServiceImpl.checkApplyStatus(userId, lectureId);
         });
 

@@ -1,6 +1,7 @@
 package com.hhplus.lecture.business.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -16,12 +17,16 @@ public class Lecture {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @NotBlank
     private String title;
+
     private LocalDateTime openDate;
+
+    @Min(1)
     private Integer maxAttendees;
 
     @OneToMany(mappedBy = "lecture", fetch = FetchType.LAZY)
-    private List<LectureHistory> lectureMasters;
+    private List<LectureHistory> lectureHistories;
 
     public Lecture(String title, LocalDateTime openDate, Integer maxAttendees) {
         this.title = title;

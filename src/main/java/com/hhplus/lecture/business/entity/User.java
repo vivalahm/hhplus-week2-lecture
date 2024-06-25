@@ -1,10 +1,9 @@
 package com.hhplus.lecture.business.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
+import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 import java.util.List;
 
@@ -17,10 +16,11 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @NotBlank
     private String name;
 
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
-    private List<LectureHistory> lectureMasters;
+    private List<LectureHistory> lectureHistories;
 
     public User(Long id, String name) {
         this.id = id;

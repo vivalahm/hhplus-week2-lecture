@@ -6,6 +6,8 @@ import com.hhplus.lecture.business.entity.User;
 import com.hhplus.lecture.business.repository.LectureHistoryRepository;
 import com.hhplus.lecture.business.repository.LectureRepository;
 import com.hhplus.lecture.business.repository.UserRepository;
+import com.hhplus.lecture.exception.LectureNotFoundException;
+import com.hhplus.lecture.exception.UserNotFoundException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -15,7 +17,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -45,7 +46,7 @@ class LectureApplyServiceImplTest {
         when(userRepository.findById(userId)).thenReturn(Optional.empty());
 
         //When & Then
-        assertThrows(NoSuchElementException.class, () -> {
+        assertThrows(UserNotFoundException.class, () -> {
             lectureApplyServiceImpl.applyLecture(userId, lectureId);
         });
 
@@ -65,13 +66,40 @@ class LectureApplyServiceImplTest {
         when(lectureRepository.findById(lectureId)).thenReturn(Optional.empty());
 
         //When & Then
-        assertThrows(NoSuchElementException.class, () -> {
+        assertThrows(LectureNotFoundException.class, () -> {
             lectureApplyServiceImpl.applyLecture(userId, lectureId);
         });
 
         verify(userRepository, times(1)).findById(userId);
         verify(lectureRepository, times(1)).findById(lectureId);
     }
+
+
+    @Test
+    @DisplayName("강의 신청 테스트 - 이미 신청한 강의")
+    public void applyLecture_alreadyApplied() {
+        //Given
+        Long userId = 1L;
+        Long lectureId = 1L;
+
+        User user = new User(userId, "홍길동");
+
+        Lecture lecture = new Lecture(lectureId, "항해플러스", LocalDateTime.parse("2024-04-10T13:00:00"), 30);
+
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+        when(lectureRepository.findById(lectureId)).thenReturn(Optional.of(lecture));
+        when(lectureHistoryRepository.findByUserAndLectureAndIsAppliedTrue(user, lecture)).thenReturn(Optional.of(new LectureHistory()));
+
+        //When & Then
+        assertThrows(IllegalStateException.class, () -> {
+            lectureApplyServiceImpl.applyLecture(userId, lectureId);
+        }, "이미 신청한 강의입니다.");
+
+        verify(userRepository, times(1)).findById(userId);
+        verify(lectureRepository, times(1)).findById(lectureId);
+        verify(lectureHistoryRepository, times(1)).findByUserAndLectureAndIsAppliedTrue(user, lecture);
+    }
+
 
     @Test
     @DisplayName("강의 신청 테스트 - 강의 신청 일자가 아닐 때")
@@ -112,6 +140,7 @@ class LectureApplyServiceImplTest {
 
         when(userRepository.findById(userId)).thenReturn(Optional.of(user));
         when(lectureRepository.findById(lectureId)).thenReturn(Optional.of(lecture));
+        when(lectureHistoryRepository.findByUserAndLectureAndIsAppliedTrue(user, lecture)).thenReturn(Optional.empty());
         when(lectureHistoryRepository.countByLectureAndIsAppliedTrue(lecture)).thenReturn(30L);
 
 
@@ -122,34 +151,8 @@ class LectureApplyServiceImplTest {
 
         verify(userRepository, times(1)).findById(userId);
         verify(lectureRepository, times(1)).findById(lectureId);
-        verify(lectureHistoryRepository, times(1)).countByLectureAndIsAppliedTrue(lecture);
-    }
-
-    @Test
-    @DisplayName("강의 신청 테스트 - 이미 신청한 강의")
-    public void applyLecture_alreadyApplied() {
-        //Given
-        Long userId = 1L;
-        Long lectureId = 1L;
-
-        User user = new User(userId, "홍길동");
-
-        Lecture lecture = new Lecture(lectureId, "항해플러스", LocalDateTime.parse("2024-04-10T13:00:00"), 30);
-
-        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
-        when(lectureRepository.findById(lectureId)).thenReturn(Optional.of(lecture));
-        when(lectureHistoryRepository.countByLectureAndIsAppliedTrue(lecture)).thenReturn(29L);
-        when(lectureHistoryRepository.findByUserAndLectureAndIsAppliedTrue(user, lecture)).thenReturn(Optional.of(new LectureHistory()));
-
-        //When & Then
-        assertThrows(IllegalStateException.class, () -> {
-            lectureApplyServiceImpl.applyLecture(userId, lectureId);
-        }, "이미 신청한 강의입니다.");
-
-        verify(userRepository, times(1)).findById(userId);
-        verify(lectureRepository, times(1)).findById(lectureId);
-        verify(lectureHistoryRepository, times(1)).countByLectureAndIsAppliedTrue(lecture);
         verify(lectureHistoryRepository, times(1)).findByUserAndLectureAndIsAppliedTrue(user, lecture);
+        verify(lectureHistoryRepository, times(1)).countByLectureAndIsAppliedTrue(lecture);
     }
 
     @Test
@@ -165,8 +168,9 @@ class LectureApplyServiceImplTest {
 
         when(userRepository.findById(userId)).thenReturn(Optional.of(user));
         when(lectureRepository.findById(lectureId)).thenReturn(Optional.of(lecture));
-        when(lectureHistoryRepository.countByLectureAndIsAppliedTrue(lecture)).thenReturn(29L);
         when(lectureHistoryRepository.findByUserAndLectureAndIsAppliedTrue(user, lecture)).thenReturn(Optional.empty());
+        when(lectureHistoryRepository.countByLectureAndIsAppliedTrue(lecture)).thenReturn(29L);
+
 
         //When & Then
         assertDoesNotThrow(() -> {
@@ -175,8 +179,8 @@ class LectureApplyServiceImplTest {
 
         verify(userRepository, times(1)).findById(userId);
         verify(lectureRepository, times(1)).findById(lectureId);
-        verify(lectureHistoryRepository, times(1)).countByLectureAndIsAppliedTrue(lecture);
         verify(lectureHistoryRepository, times(1)).findByUserAndLectureAndIsAppliedTrue(user, lecture);
+        verify(lectureHistoryRepository, times(1)).countByLectureAndIsAppliedTrue(lecture);
         verify(lectureHistoryRepository, times(1)).save(any(LectureHistory.class));
     }
 
@@ -190,7 +194,7 @@ class LectureApplyServiceImplTest {
         when(userRepository.findById(userId)).thenReturn(Optional.empty());
 
         //When & Then
-        assertThrows(NoSuchElementException.class, () -> {
+        assertThrows(UserNotFoundException.class, () -> {
             lectureApplyServiceImpl.checkApplyStatus(userId, lectureId);
         });
 
@@ -210,7 +214,7 @@ class LectureApplyServiceImplTest {
         when(lectureRepository.findById(lectureId)).thenReturn(Optional.empty());
 
         //When & Then
-        assertThrows(NoSuchElementException.class, () -> {
+        assertThrows(LectureNotFoundException.class, () -> {
             lectureApplyServiceImpl.checkApplyStatus(userId, lectureId);
         });
 
@@ -275,7 +279,7 @@ class LectureApplyServiceImplTest {
         when(lectureRepository.findAll()).thenReturn(List.of());
 
         //When & Then
-        assertThrows(NoSuchElementException.class, () -> {
+        assertThrows(LectureNotFoundException.class, () -> {
             lectureApplyServiceImpl.getLectureList();
         });
 
