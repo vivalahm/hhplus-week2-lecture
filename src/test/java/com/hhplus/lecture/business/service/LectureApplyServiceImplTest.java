@@ -22,9 +22,9 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class LectureServiceTest {
+class LectureApplyServiceImplTest {
     @InjectMocks
-    private LectureService lectureService;
+    private LectureApplyServiceImpl lectureApplyServiceImpl;
 
     @Mock
     private UserRepository userRepository;
@@ -46,7 +46,7 @@ class LectureServiceTest {
 
         //When & Then
         assertThrows(NoSuchElementException.class, () -> {
-            lectureService.applyLecture(userId, lectureId);
+            lectureApplyServiceImpl.applyLecture(userId, lectureId);
         });
 
         verify(userRepository, times(1)).findById(userId);
@@ -59,16 +59,14 @@ class LectureServiceTest {
         Long userId = 1L;
         Long lectureId = 1L;
 
-        User user = new User();
-        user.setId(userId);
-        user.setName("홍길동");
+        User user = new User(userId, "홍길동");
 
         when(userRepository.findById(userId)).thenReturn(Optional.of(user));
         when(lectureRepository.findById(lectureId)).thenReturn(Optional.empty());
 
         //When & Then
         assertThrows(NoSuchElementException.class, () -> {
-            lectureService.applyLecture(userId, lectureId);
+            lectureApplyServiceImpl.applyLecture(userId, lectureId);
         });
 
         verify(userRepository, times(1)).findById(userId);
@@ -82,22 +80,17 @@ class LectureServiceTest {
         Long userId = 1L;
         Long lectureId = 1L;
 
-        User user = new User();
-        user.setId(userId);
-        user.setName("홍길동");
+        User user = new User(userId, "홍길동");
 
-        Lecture lecture = new Lecture();
-        lecture.setId(lectureId);
-        lecture.setTitle("항해플러스");
-        lecture.setOpenDate(LocalDateTime.parse("2024-04-10T13:00:00"));
-        lecture.setMaxAttendees(30);
+
+        Lecture lecture = new Lecture(lectureId, "항해플러스", LocalDateTime.now().plusDays(1), 30);
 
         when(userRepository.findById(userId)).thenReturn(Optional.of(user));
         when(lectureRepository.findById(lectureId)).thenReturn(Optional.of(lecture));
 
         //When
         assertThrows(IllegalStateException.class, () -> {
-            lectureService.applyLecture(userId, lectureId);
+            lectureApplyServiceImpl.applyLecture(userId, lectureId);
         }, "강의 신청 가능한 날짜가 아닙니다.");
 
 
@@ -113,15 +106,9 @@ class LectureServiceTest {
         Long userId = 1L;
         Long lectureId = 1L;
 
-        User user = new User();
-        user.setId(userId);
-        user.setName("홍길동");
+        User user = new User(userId, "홍길동");
 
-        Lecture lecture = new Lecture();
-        lecture.setId(lectureId);
-        lecture.setTitle("항해플러스");
-        lecture.setOpenDate(LocalDateTime.parse("2024-04-10T11:00:00"));
-        lecture.setMaxAttendees(30);
+        Lecture lecture = new Lecture(lectureId, "항해플러스", LocalDateTime.parse("2024-04-10T13:00:00"), 30);
 
         when(userRepository.findById(userId)).thenReturn(Optional.of(user));
         when(lectureRepository.findById(lectureId)).thenReturn(Optional.of(lecture));
@@ -130,7 +117,7 @@ class LectureServiceTest {
 
         //When & Then
         assertThrows(IllegalStateException.class, () -> {
-            lectureService.applyLecture(userId, lectureId);
+            lectureApplyServiceImpl.applyLecture(userId, lectureId);
         }, "정원이 초과되었습니다.");
 
         verify(userRepository, times(1)).findById(userId);
@@ -145,15 +132,9 @@ class LectureServiceTest {
         Long userId = 1L;
         Long lectureId = 1L;
 
-        User user = new User();
-        user.setId(userId);
-        user.setName("홍길동");
+        User user = new User(userId, "홍길동");
 
-        Lecture lecture = new Lecture();
-        lecture.setId(lectureId);
-        lecture.setTitle("항해플러스");
-        lecture.setOpenDate(LocalDateTime.parse("2024-04-10T11:00:00"));
-        lecture.setMaxAttendees(30);
+        Lecture lecture = new Lecture(lectureId, "항해플러스", LocalDateTime.parse("2024-04-10T13:00:00"), 30);
 
         when(userRepository.findById(userId)).thenReturn(Optional.of(user));
         when(lectureRepository.findById(lectureId)).thenReturn(Optional.of(lecture));
@@ -162,7 +143,7 @@ class LectureServiceTest {
 
         //When & Then
         assertThrows(IllegalStateException.class, () -> {
-            lectureService.applyLecture(userId, lectureId);
+            lectureApplyServiceImpl.applyLecture(userId, lectureId);
         }, "이미 신청한 강의입니다.");
 
         verify(userRepository, times(1)).findById(userId);
@@ -178,15 +159,9 @@ class LectureServiceTest {
         Long userId = 1L;
         Long lectureId = 1L;
 
-        User user = new User();
-        user.setId(userId);
-        user.setName("홍길동");
+        User user = new User(userId, "홍길동");
 
-        Lecture lecture = new Lecture();
-        lecture.setId(lectureId);
-        lecture.setTitle("항해플러스");
-        lecture.setOpenDate(LocalDateTime.parse("2024-04-10T11:00:00"));
-        lecture.setMaxAttendees(30);
+        Lecture lecture = new Lecture(lectureId, "항해플러스", LocalDateTime.parse("2024-04-10T13:00:00"), 30);
 
         when(userRepository.findById(userId)).thenReturn(Optional.of(user));
         when(lectureRepository.findById(lectureId)).thenReturn(Optional.of(lecture));
@@ -195,7 +170,7 @@ class LectureServiceTest {
 
         //When & Then
         assertDoesNotThrow(() -> {
-            lectureService.applyLecture(userId, lectureId);
+            lectureApplyServiceImpl.applyLecture(userId, lectureId);
         });
 
         verify(userRepository, times(1)).findById(userId);
@@ -216,7 +191,7 @@ class LectureServiceTest {
 
         //When & Then
         assertThrows(NoSuchElementException.class, () -> {
-            lectureService.checkApplyStatus(userId, lectureId);
+            lectureApplyServiceImpl.checkApplyStatus(userId, lectureId);
         });
 
         verify(userRepository, times(1)).findById(userId);
@@ -229,16 +204,14 @@ class LectureServiceTest {
         Long userId = 1L;
         Long lectureId = 1L;
 
-        User user = new User();
-        user.setId(userId);
-        user.setName("홍길동");
+        User user = new User(userId, "홍길동");
 
         when(userRepository.findById(userId)).thenReturn(Optional.of(user));
         when(lectureRepository.findById(lectureId)).thenReturn(Optional.empty());
 
         //When & Then
         assertThrows(NoSuchElementException.class, () -> {
-            lectureService.checkApplyStatus(userId, lectureId);
+            lectureApplyServiceImpl.checkApplyStatus(userId, lectureId);
         });
 
         verify(userRepository, times(1)).findById(userId);
@@ -252,22 +225,16 @@ class LectureServiceTest {
         Long userId = 1L;
         Long lectureId = 1L;
 
-        User user = new User();
-        user.setId(userId);
-        user.setName("홍길동");
+        User user = new User(userId, "홍길동");
 
-        Lecture lecture = new Lecture();
-        lecture.setId(lectureId);
-        lecture.setTitle("항해플러스");
-        lecture.setOpenDate(LocalDateTime.parse("2024-04-10T11:00:00"));
-        lecture.setMaxAttendees(30);
+        Lecture lecture = new Lecture(lectureId, "항해플러스", LocalDateTime.parse("2024-04-10T13:00:00"), 30);
 
         when(userRepository.findById(userId)).thenReturn(Optional.of(user));
         when(lectureRepository.findById(lectureId)).thenReturn(Optional.of(lecture));
         when(lectureHistoryRepository.findByUserAndLectureAndIsAppliedTrue(user, lecture)).thenReturn(Optional.of(new LectureHistory()));
 
         //When
-        boolean isApplied = lectureService.checkApplyStatus(userId, lectureId);
+        boolean isApplied = lectureApplyServiceImpl.checkApplyStatus(userId, lectureId);
 
         //Then
         assertTrue(isApplied);
@@ -284,22 +251,16 @@ class LectureServiceTest {
         Long userId = 1L;
         Long lectureId = 1L;
 
-        User user = new User();
-        user.setId(userId);
-        user.setName("홍길동");
+        User user = new User(userId, "홍길동");
 
-        Lecture lecture = new Lecture();
-        lecture.setId(lectureId);
-        lecture.setTitle("항해플러스");
-        lecture.setOpenDate(LocalDateTime.parse("2024-04-10T11:00:00"));
-        lecture.setMaxAttendees(30);
+        Lecture lecture = new Lecture(lectureId, "항해플러스", LocalDateTime.parse("2024-04-10T13:00:00"), 30);
 
         when(userRepository.findById(userId)).thenReturn(Optional.of(user));
         when(lectureRepository.findById(lectureId)).thenReturn(Optional.of(lecture));
         when(lectureHistoryRepository.findByUserAndLectureAndIsAppliedTrue(user, lecture)).thenReturn(Optional.empty());
 
         //When
-        boolean isApplied = lectureService.checkApplyStatus(userId, lectureId);
+        boolean isApplied = lectureApplyServiceImpl.checkApplyStatus(userId, lectureId);
 
         //Then
         assertFalse(isApplied);
@@ -309,13 +270,13 @@ class LectureServiceTest {
 
     @Test
     @DisplayName("강의 목록 조회 테스트 - 강의 목록이 없을 때")
-    public void getLectureList_empty() {
+    public void findByIdList_empty() {
         //Given
         when(lectureRepository.findAll()).thenReturn(List.of());
 
         //When & Then
         assertThrows(NoSuchElementException.class, () -> {
-            lectureService.getLectureList();
+            lectureApplyServiceImpl.getLectureList();
         });
 
         verify(lectureRepository, times(1)).findAll();
@@ -323,22 +284,16 @@ class LectureServiceTest {
 
     @Test
     @DisplayName("강의 목록 조회 테스트")
-    public void getLectureList() {
+    public void findByIdList() {
         //Given
-        Lecture lecture1 = new Lecture();
-        lecture1.setTitle("항해플러스");
-        lecture1.setOpenDate(LocalDateTime.parse("2024-04-10T13:00:00"));
-        lecture1.setMaxAttendees(30);
+        Lecture lecture1 = new Lecture(1L, "항해플러스", LocalDateTime.parse("2024-04-10T13:00:00"), 30);
 
-        Lecture lecture2 = new Lecture();
-        lecture2.setTitle("자바 스터디");
-        lecture2.setOpenDate(LocalDateTime.parse("2024-04-10T15:00:00"));
-        lecture2.setMaxAttendees(30);
+        Lecture lecture2 = new Lecture(2L, "자바 스터디", LocalDateTime.parse("2024-04-10T13:00:00"), 30);
 
         when(lectureRepository.findAll()).thenReturn(List.of(lecture1, lecture2));
 
         //When
-        List<Lecture> lectureList = lectureService.getLectureList();
+        List<Lecture> lectureList = lectureApplyServiceImpl.getLectureList();
 
         //Then
         assertEquals(2, lectureList.size());

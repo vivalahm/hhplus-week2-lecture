@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.NoSuchElementException;
 
 @Service
-public class LectureService {
+public class LectureApplyServiceImpl implements LectureApplyService {
 
     private final UserRepository userRepository;
 
@@ -22,7 +22,7 @@ public class LectureService {
 
     private final LectureHistoryRepository lectureHistoryRepository;
 
-    public LectureService(UserRepository userRepository, LectureRepository lectureRepository, LectureHistoryRepository lectureHistoryRepository) {
+    public LectureApplyServiceImpl(UserRepository userRepository, LectureRepository lectureRepository, LectureHistoryRepository lectureHistoryRepository) {
         this.userRepository = userRepository;
         this.lectureRepository = lectureRepository;
         this.lectureHistoryRepository = lectureHistoryRepository;
@@ -45,12 +45,12 @@ public class LectureService {
 
         // 강의 신청 가능 날짜 확인
         //lecture.getOpenDate()보다 이전이라면 에러 발생
-        if(LocalDateTime.parse("2024-04-10T12:00:00").isBefore(lecture.getOpenDate())) {
+        if(!lecture.isAfterOpenDate(LocalDateTime.now())) {
             throw new IllegalStateException("강의 신청 가능한 날짜가 아닙니다.");
         }
 
-        long count =lectureHistoryRepository.countByLectureAndIsAppliedTrue(lecture);
-        if(count >= lecture.getMaxAttendees()){
+        long count = lectureHistoryRepository.countByLectureAndIsAppliedTrue(lecture);
+        if(lecture.isFull(count)) {
             throw new IllegalStateException("정원이 초과되었습니다.");
         }
 
@@ -58,12 +58,7 @@ public class LectureService {
             throw new IllegalStateException("이미 신청한 강의입니다.");
         }
 
-        LectureHistory lectureHistory = new LectureHistory();
-        lectureHistory.setUser(user);
-        lectureHistory.setLecture(lecture);
-        lectureHistory.setApplyDate(LocalDateTime.now());
-        lectureHistory.setIsApplied(true);
-
+        LectureHistory lectureHistory = LectureHistory.apply(user, lecture);
         lectureHistoryRepository.save(lectureHistory);
     }
 
@@ -78,7 +73,7 @@ public class LectureService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new NoSuchElementException("사용자를 찾을 수 없습니다."));
         Lecture lecture = lectureRepository.findById(lectureId)
-                .orElseThrow(() -> new NoSuchElementException("강의를 찾을 수 없습니다."));
+                .orElseThrow(()-> new NoSuchElementException("강의를 찾을 수 없습니다."));
 
         return lectureHistoryRepository.findByUserAndLectureAndIsAppliedTrue(user,lecture).isPresent();
     }

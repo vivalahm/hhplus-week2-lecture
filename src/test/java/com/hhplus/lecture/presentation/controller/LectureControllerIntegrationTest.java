@@ -3,7 +3,7 @@ package com.hhplus.lecture.presentation.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hhplus.lecture.business.dto.ApplyLectureRequest;
 import com.hhplus.lecture.business.entity.Lecture;
-import com.hhplus.lecture.business.service.LectureService;
+import com.hhplus.lecture.business.service.LectureApplyServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,7 +32,7 @@ public class LectureControllerIntegrationTest {
     private MockMvc mockMvc;
 
     @MockBean
-    private LectureService lectureService;
+    private LectureApplyServiceImpl lectureApplyServiceImpl;
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -49,7 +49,7 @@ public class LectureControllerIntegrationTest {
     @Test
     void applyLecture_Success() throws Exception {
         // given
-        willDoNothing().given(lectureService).applyLecture(any(Long.class), any(Long.class));
+        willDoNothing().given(lectureApplyServiceImpl).applyLecture(any(Long.class), any(Long.class));
 
         // when
         ResultActions resultActions = mockMvc.perform(post("/lectures/apply")
@@ -64,7 +64,7 @@ public class LectureControllerIntegrationTest {
     @Test
     void applyLecture_Fail() throws Exception {
         // given
-        doThrow(new RuntimeException("강의 신청에 실패했습니다.")).when(lectureService).applyLecture(any(Long.class), any(Long.class));
+        doThrow(new RuntimeException("강의 신청에 실패했습니다.")).when(lectureApplyServiceImpl).applyLecture(any(Long.class), any(Long.class));
 
         // when
         ResultActions resultActions = mockMvc.perform(post("/lectures/apply")
@@ -79,7 +79,7 @@ public class LectureControllerIntegrationTest {
     @Test
     void checkApplicationStatus_true() throws Exception {
         // given
-        given(lectureService.checkApplyStatus(1L, 1L)).willReturn(true);
+        given(lectureApplyServiceImpl.checkApplyStatus(1L, 1L)).willReturn(true);
 
         // when
         ResultActions resultActions = mockMvc.perform(get("/lectures/application/1")
@@ -93,7 +93,7 @@ public class LectureControllerIntegrationTest {
     @Test
     void checkApplicationStatus_false() throws Exception {
         // given
-        given(lectureService.checkApplyStatus(1L, 1L)).willReturn(false);
+        given(lectureApplyServiceImpl.checkApplyStatus(1L, 1L)).willReturn(false);
 
         // when
         ResultActions resultActions = mockMvc.perform(get("/lectures/application/1")
@@ -108,12 +108,10 @@ public class LectureControllerIntegrationTest {
     void getLectureList() throws Exception {
         // given
         List<Lecture> lectureList = new ArrayList<>();
-        Lecture lecture = new Lecture();
-        lecture.setId(1L);
-        lecture.setTitle("Spring Boot 특강");
+        Lecture lecture = new Lecture(1L, "Spring Boot 특강");
         lectureList.add(lecture);
 
-        given(lectureService.getLectureList()).willReturn(lectureList);
+        given(lectureApplyServiceImpl.getLectureList()).willReturn(lectureList);
 
         // when
         ResultActions resultActions = mockMvc.perform(get("/lectures"));
@@ -128,7 +126,7 @@ public class LectureControllerIntegrationTest {
         // given
         List<Lecture> lectureList = new ArrayList<>();
 
-        given(lectureService.getLectureList()).willReturn(lectureList);
+        given(lectureApplyServiceImpl.getLectureList()).willReturn(lectureList);
 
         // when
         ResultActions resultActions = mockMvc.perform(get("/lectures"));

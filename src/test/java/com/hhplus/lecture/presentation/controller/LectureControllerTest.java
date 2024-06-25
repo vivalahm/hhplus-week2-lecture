@@ -3,7 +3,7 @@ package com.hhplus.lecture.presentation.controller;
 import com.hhplus.lecture.business.dto.ApplyLectureRequest;
 
 import com.hhplus.lecture.business.entity.Lecture;
-import com.hhplus.lecture.business.service.LectureService;
+import com.hhplus.lecture.business.service.LectureApplyServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -29,7 +29,7 @@ public class LectureControllerTest {
     private MockMvc mockMvc;
 
     @MockBean
-    private LectureService lectureService;
+    private LectureApplyServiceImpl lectureApplyServiceImpl;
 
     private ApplyLectureRequest applyLectureRequest;
 
@@ -51,7 +51,7 @@ public class LectureControllerTest {
 
     @Test
     void applyLecture_Fail() throws Exception {
-        doThrow(new RuntimeException("강의 신청에 실패했습니다.")).when(lectureService).applyLecture(any(Long.class), any(Long.class));
+        doThrow(new RuntimeException("강의 신청에 실패했습니다.")).when(lectureApplyServiceImpl).applyLecture(any(Long.class), any(Long.class));
 
         mockMvc.perform(post("/lectures/apply")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -62,7 +62,7 @@ public class LectureControllerTest {
 
     @Test
     void checkApplicationStatus_true() throws Exception {
-        given(lectureService.checkApplyStatus(1L, 1L)).willReturn(true);
+        given(lectureApplyServiceImpl.checkApplyStatus(1L, 1L)).willReturn(true);
 
         mockMvc.perform(get("/lectures/application/1")
                         .param("lectureId", "1"))
@@ -72,7 +72,7 @@ public class LectureControllerTest {
 
     @Test
     void checkApplicationStatus_false() throws Exception {
-        given(lectureService.checkApplyStatus(1L, 1L)).willReturn(false);
+        given(lectureApplyServiceImpl.checkApplyStatus(1L, 1L)).willReturn(false);
 
         mockMvc.perform(get("/lectures/application/1")
                         .param("lectureId", "1"))
@@ -83,12 +83,10 @@ public class LectureControllerTest {
     @Test
     void getLectureList() throws Exception {
         List<Lecture> lectureList = new ArrayList<>();
-        Lecture lecture = new Lecture();
-        lecture.setId(1L);
-        lecture.setTitle("Spring Boot 특강");
+        Lecture lecture = new Lecture(1L, "Spring Boot 특강");
         lectureList.add(lecture);
 
-        given(lectureService.getLectureList()).willReturn(lectureList);
+        given(lectureApplyServiceImpl.getLectureList()).willReturn(lectureList);
 
         mockMvc.perform(get("/lectures"))
                 .andExpect(status().isOk())
@@ -99,7 +97,7 @@ public class LectureControllerTest {
     void getLectureList_empty() throws Exception {
         List<Lecture> lectureList = new ArrayList<>();
 
-        given(lectureService.getLectureList()).willReturn(lectureList);
+        given(lectureApplyServiceImpl.getLectureList()).willReturn(lectureList);
 
         mockMvc.perform(get("/lectures"))
                 .andExpect(status().isOk())

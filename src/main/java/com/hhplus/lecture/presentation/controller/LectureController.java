@@ -3,7 +3,7 @@ package com.hhplus.lecture.presentation.controller;
 import com.hhplus.lecture.business.dto.ApplyLectureRequest;
 import com.hhplus.lecture.business.dto.LectureApplyResponse;
 import com.hhplus.lecture.business.entity.Lecture;
-import com.hhplus.lecture.business.service.LectureService;
+import com.hhplus.lecture.business.service.LectureApplyServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -14,7 +14,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/lectures")
 public class LectureController {
-    private final LectureService lectureService;
+    private final LectureApplyServiceImpl lectureApplyServiceImpl;
 
     /**
      * 강의 신청
@@ -24,7 +24,7 @@ public class LectureController {
     @PostMapping("/apply")
     public ResponseEntity<String> applyLecture(@RequestBody ApplyLectureRequest request) {
         try {
-            lectureService.applyLecture(request.getUserId(), request.getLectureId());
+            lectureApplyServiceImpl.applyLecture(request.getUserId(), request.getLectureId());
             return ResponseEntity.ok("강의 신청이 완료되었습니다.");
         }catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
@@ -39,7 +39,7 @@ public class LectureController {
      */
     @GetMapping("/application/{userId}")
     public ResponseEntity<LectureApplyResponse> checkApplyStatus(@PathVariable Long userId, @RequestParam Long lectureId) {
-        boolean status = lectureService.checkApplyStatus(userId, lectureId);
+        boolean status = lectureApplyServiceImpl.checkApplyStatus(userId, lectureId);
         return ResponseEntity.ok(new LectureApplyResponse(status));
     }
 
@@ -49,7 +49,7 @@ public class LectureController {
      */
     @GetMapping
     public ResponseEntity<List<Lecture>> getLectureList() {
-        List<Lecture> lectureList = lectureService.getLectureList();
+        List<Lecture> lectureList = lectureApplyServiceImpl.getLectureList();
         return ResponseEntity.ok(lectureList);
     }
 }
