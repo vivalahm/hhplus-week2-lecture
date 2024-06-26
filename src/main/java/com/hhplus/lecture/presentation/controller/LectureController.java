@@ -1,7 +1,8 @@
 package com.hhplus.lecture.presentation.controller;
 
-import com.hhplus.lecture.business.dto.ApplyLectureRequest;
-import com.hhplus.lecture.business.dto.LectureApplyResponse;
+import com.hhplus.lecture.business.entity.LectureHistory;
+import com.hhplus.lecture.presentation.dto.ApplyLectureRequest;
+import com.hhplus.lecture.presentation.dto.LectureApplyResponse;
 import com.hhplus.lecture.business.entity.Lecture;
 import com.hhplus.lecture.business.service.LectureApplyServiceImpl;
 import lombok.RequiredArgsConstructor;
@@ -24,8 +25,12 @@ public class LectureController {
     @PostMapping("/apply")
     public ResponseEntity<String> applyLecture(@RequestBody ApplyLectureRequest request) {
         try {
-            lectureApplyServiceImpl.applyLecture(request.getUserId(), request.getLectureId());
-            return ResponseEntity.ok("강의 신청이 완료되었습니다.");
+            LectureApplyResponse lectureApplyResponse = new LectureApplyResponse(lectureApplyServiceImpl.applyLecture(request.getUserId(), request.getLectureId()).getIsApplied());
+            if(lectureApplyResponse.isStatus()) {
+                return ResponseEntity.ok("강의 신청이 완료되었습니다.");
+            } else {
+                return ResponseEntity.badRequest().body("강의 신청에 실패했습니다.");
+            }
         }catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }

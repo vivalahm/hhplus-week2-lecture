@@ -1,4 +1,4 @@
-package com.hhplus.lecture.business.dto;
+package com.hhplus.lecture.presentation.dto;
 
 import lombok.Getter;
 import lombok.Setter;

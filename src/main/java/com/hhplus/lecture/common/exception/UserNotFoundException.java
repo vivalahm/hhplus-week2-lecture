@@ -1,4 +1,4 @@
-package com.hhplus.lecture.exception;
+package com.hhplus.lecture.common.exception;
 
 public class UserNotFoundException extends RuntimeException{
     public UserNotFoundException(String message) {

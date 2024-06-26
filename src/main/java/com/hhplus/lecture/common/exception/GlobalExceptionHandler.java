@@ -1,4 +1,4 @@
-package com.hhplus.lecture.exception;
+package com.hhplus.lecture.common.exception;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

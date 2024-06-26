@@ -1,6 +1,8 @@
 package com.hhplus.lecture.presentation.controller;
 
-import com.hhplus.lecture.business.dto.ApplyLectureRequest;
+import com.hhplus.lecture.business.entity.LectureHistory;
+import com.hhplus.lecture.business.entity.User;
+import com.hhplus.lecture.presentation.dto.ApplyLectureRequest;
 
 import com.hhplus.lecture.business.entity.Lecture;
 import com.hhplus.lecture.business.service.LectureApplyServiceImpl;
@@ -13,12 +15,14 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -42,15 +46,32 @@ public class LectureControllerTest {
 
     @Test
     void applyLecture_Success() throws Exception {
+        User user = new User(1L, "testUser");
+        Lecture lecture = new Lecture(1L, "testLecture");
+        given(lectureApplyServiceImpl.applyLecture(1L, 1L)).willReturn(new LectureHistory(user, lecture, LocalDateTime.now(), true));
         mockMvc.perform(post("/lectures/apply")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"userId\": 1, \"lectureId\": 1}"))
                 .andExpect(status().isOk())
                 .andExpect(content().string("강의 신청이 완료되었습니다."));
+        verify(lectureApplyServiceImpl).applyLecture(1L, 1L);
     }
 
     @Test
-    void applyLecture_Fail() throws Exception {
+    void applyLecture_Fail1() throws Exception {
+        User user = new User(1L, "testUser");
+        Lecture lecture = new Lecture(1L, "testLecture");
+        given(lectureApplyServiceImpl.applyLecture(1L, 1L)).willReturn(new LectureHistory(user, lecture, LocalDateTime.now(), false));
+        mockMvc.perform(post("/lectures/apply")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"userId\": 1, \"lectureId\": 1}"))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().string("강의 신청에 실패했습니다."));
+        verify(lectureApplyServiceImpl).applyLecture(1L, 1L);
+    }
+
+    @Test
+    void applyLecture_Fail2() throws Exception {
         doThrow(new RuntimeException("강의 신청에 실패했습니다.")).when(lectureApplyServiceImpl).applyLecture(any(Long.class), any(Long.class));
 
         mockMvc.perform(post("/lectures/apply")
@@ -58,6 +79,7 @@ public class LectureControllerTest {
                         .content("{\"userId\": 1, \"lectureId\": 1}"))
                 .andExpect(status().isBadRequest())
                 .andExpect(content().string("강의 신청에 실패했습니다."));
+        verify(lectureApplyServiceImpl).applyLecture(1L, 1L);
     }
 
     @Test
@@ -68,6 +90,7 @@ public class LectureControllerTest {
                         .param("lectureId", "1"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.status").value(true));
+        verify(lectureApplyServiceImpl).checkApplyStatus(1L, 1L);
     }
 
     @Test
@@ -78,6 +101,7 @@ public class LectureControllerTest {
                         .param("lectureId", "1"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.status").value(false));
+        verify(lectureApplyServiceImpl).checkApplyStatus(1L, 1L);
     }
 
     @Test
@@ -91,6 +115,7 @@ public class LectureControllerTest {
         mockMvc.perform(get("/lectures"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].title").value("Spring Boot 특강"));
+        verify(lectureApplyServiceImpl).getLectureList();
     }
 
     @Test
@@ -102,5 +127,6 @@ public class LectureControllerTest {
         mockMvc.perform(get("/lectures"))
                 .andExpect(status().isOk())
                 .andExpect(content().string("[]"));
+        verify(lectureApplyServiceImpl).getLectureList();
     }
 }
