@@ -6,6 +6,6 @@ import lombok.Setter;
 @Getter
 @Setter
 public class ApplyLectureRequest {
-    private Long UserId;
-    private Long LectureId;
+    private Long userId;
+    private Long lectureId;
 }

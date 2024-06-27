@@ -19,8 +19,6 @@ public class User {
     @NotBlank
     private String name;
 
-    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
-    private List<LectureHistory> lectureHistories;
 
     public User(Long id, String name) {
         this.id = id;

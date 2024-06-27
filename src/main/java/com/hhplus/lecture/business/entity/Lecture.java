@@ -25,8 +25,6 @@ public class Lecture {
     @Min(1)
     private Integer maxAttendees;
 
-    @OneToMany(mappedBy = "lecture", fetch = FetchType.LAZY)
-    private List<LectureHistory> lectureHistories;
 
     public Lecture(String title, LocalDateTime openDate, Integer maxAttendees) {
         this.title = title;
