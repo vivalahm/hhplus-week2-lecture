@@ -2,28 +2,26 @@
 
 ```mermaid
 erDiagram
-    USER {
-        Long id PK
-        String name
-    }
-
     LECTURE {
-        Long id PK
-        String title
-        Date openDate
-        Integer maxAttendees
+        Long id PK "기본키"
+        String title "강의 제목, 비어있을 수 없음"
+        LocalDateTime openDate "강의 시작 날짜 및 시간"
+        Integer maxAttendees "최대 참석자 수, 최소 1"
     }
-
     LECTURE_HISTORY {
-        Long id PK
-        Long userId FK
-        Long lectureId FK
-        Date applyDate
-        Boolean isApplied
+        Long id PK "기본키"
+        Long user_id FK "외래키, User 엔티티 참조"
+        Long lecture_id FK "외래키, Lecture 엔티티 참조"
+        LocalDateTime applyDate "신청 날짜 및 시간"
+        Boolean isApplied "신청 여부"
+    }
+    USER {
+        Long id PK "기본키"
+        String name "사용자 이름, 비어있을 수 없음"
     }
 
-    USER ||--o{ LECTURE_HISTORY : applies
-    LECTURE ||--o{ LECTURE_HISTORY : includes
+    LECTURE ||--o{ LECTURE_HISTORY : "lecture_id"
+    USER ||--o{ LECTURE_HISTORY : "user_id"
 ```
 	1.	USER 엔터티
 		id: 각 유저를 고유하게 식별할 수 있는 기본 키(Primary Key)입니다.
