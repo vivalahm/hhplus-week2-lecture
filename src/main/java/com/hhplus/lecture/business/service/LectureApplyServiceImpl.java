@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class LectureApplyServiceImpl implements LectureApplyService {
@@ -48,7 +49,8 @@ public class LectureApplyServiceImpl implements LectureApplyService {
             throw new LectureNotFoundException("강의를 찾을 수 없습니다.");
         }
 
-        if(lectureHistoryRepository.isAppliedLecture(user, lecture)){
+        Optional<LectureHistory> lectureHistoryOpt = lectureHistoryRepository.getLectureHistoryWithLock(user, lecture);
+        if (lectureHistoryOpt.isPresent()) {
             throw new AlreadyAppliedException("이미 신청한 강의입니다.");
         }
 
@@ -66,7 +68,7 @@ public class LectureApplyServiceImpl implements LectureApplyService {
 
 
         LectureHistory lectureHistory = LectureHistory.apply(user, lecture);
-        return lectureHistoryRepository.saveLectureHistory(lectureHistory);
+        return lectureHistoryRepository.saveLectureHistoryWithLock(lectureHistory);
     }
 
     /**
