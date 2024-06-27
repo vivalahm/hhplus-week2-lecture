@@ -6,8 +6,7 @@ import com.hhplus.lecture.business.entity.User;
 import com.hhplus.lecture.business.repository.LectureHistoryRepository;
 import com.hhplus.lecture.business.repository.LectureRepository;
 import com.hhplus.lecture.business.repository.UserRepository;
-import com.hhplus.lecture.common.exception.LectureNotFoundException;
-import com.hhplus.lecture.common.exception.UserNotFoundException;
+import com.hhplus.lecture.common.exception.*;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -50,18 +49,18 @@ public class LectureApplyServiceImpl implements LectureApplyService {
         }
 
         if(lectureHistoryRepository.isAppliedLecture(user, lecture)){
-            throw new IllegalStateException("이미 신청한 강의입니다.");
+            throw new AlreadyAppliedException("이미 신청한 강의입니다.");
         }
 
         // 강의 신청 가능 날짜 확인
         //lecture.getOpenDate()보다 이전이라면 에러 발생
         if(!lecture.isAfterOpenDate(LocalDateTime.now())) {
-            throw new IllegalStateException("강의 신청 가능한 날짜가 아닙니다.");
+            throw new LectureNotOpenException("강의 신청 가능한 날짜가 아닙니다.");
         }
 
         long appliedLectureCount = lectureHistoryRepository.getAppliedLectureCount(lecture);
         if(lecture.isFull(appliedLectureCount)) {
-            throw new IllegalStateException("정원이 초과되었습니다.");
+            throw new LectureCapacityExceededException("정원이 초과되었습니다.");
         }
 
 

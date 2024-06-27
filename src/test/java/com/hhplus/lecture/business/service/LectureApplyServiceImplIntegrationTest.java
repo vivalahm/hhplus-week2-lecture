@@ -6,8 +6,7 @@ import com.hhplus.lecture.business.entity.User;
 import com.hhplus.lecture.business.repository.LectureHistoryRepository;
 import com.hhplus.lecture.business.repository.LectureRepository;
 import com.hhplus.lecture.business.repository.UserRepository;
-import com.hhplus.lecture.common.exception.LectureNotFoundException;
-import com.hhplus.lecture.common.exception.UserNotFoundException;
+import com.hhplus.lecture.common.exception.*;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -91,7 +90,7 @@ public class LectureApplyServiceImplIntegrationTest {
         }
 
         // When & Then
-        assertThrows(IllegalStateException.class, () -> {
+        assertThrows(LectureCapacityExceededException.class, () -> {
             lectureApplyService.applyLecture(userId, lectureId);
         });
 
@@ -111,7 +110,7 @@ public class LectureApplyServiceImplIntegrationTest {
         Long lectureId = lecture.getId();
 
         // When & Then
-        assertThrows(IllegalStateException.class, () -> {
+        assertThrows(LectureNotOpenException.class, () -> {
             lectureApplyService.applyLecture(userId, lectureId);
         }, "강의 신청 가능한 날짜가 아닙니다.");
     }
@@ -133,7 +132,7 @@ public class LectureApplyServiceImplIntegrationTest {
         lectureHistoryRepository.saveLectureHistory(lectureHistory);
 
         // When & Then
-        assertThrows(IllegalStateException.class, () -> {
+        assertThrows(AlreadyAppliedException.class, () -> {
             lectureApplyService.applyLecture(userId, lectureId);
         }, "이미 수강중인 강의입니다.");
 

@@ -6,8 +6,7 @@ import com.hhplus.lecture.business.entity.User;
 import com.hhplus.lecture.business.repository.LectureHistoryRepository;
 import com.hhplus.lecture.business.repository.LectureRepository;
 import com.hhplus.lecture.business.repository.UserRepository;
-import com.hhplus.lecture.common.exception.LectureNotFoundException;
-import com.hhplus.lecture.common.exception.UserNotFoundException;
+import com.hhplus.lecture.common.exception.*;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -90,7 +89,7 @@ class LectureApplyServiceImplTest {
         when(lectureHistoryRepository.isAppliedLecture(user, lecture)).thenReturn(true);
 
         //When & Then
-        assertThrows(IllegalStateException.class, () -> {
+        assertThrows(AlreadyAppliedException.class, () -> {
             lectureApplyServiceImpl.applyLecture(userId, lectureId);
         }, "이미 신청한 강의입니다.");
 
@@ -116,7 +115,7 @@ class LectureApplyServiceImplTest {
         when(lectureRepository.getLectureById(lectureId)).thenReturn(lecture);
 
         //When
-        assertThrows(IllegalStateException.class, () -> {
+        assertThrows(LectureNotOpenException.class, () -> {
             lectureApplyServiceImpl.applyLecture(userId, lectureId);
         }, "강의 신청 가능한 날짜가 아닙니다.");
 
@@ -144,7 +143,7 @@ class LectureApplyServiceImplTest {
 
 
         //When & Then
-        assertThrows(IllegalStateException.class, () -> {
+        assertThrows(LectureCapacityExceededException.class, () -> {
             lectureApplyServiceImpl.applyLecture(userId, lectureId);
         }, "정원이 초과되었습니다.");
 
